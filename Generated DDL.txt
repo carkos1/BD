@@ -1,0 +1,163 @@
+CREATE TABLE students (
+	student_id			 BIGSERIAL,
+	endereco			 TEXT NOT NULL,
+	first_name			 VARCHAR(512) NOT NULL,
+	last_name			 VARCHAR(512) NOT NULL,
+	phone				 VARCHAR(512) NOT NULL,
+	data_nascimento		 DATE NOT NULL,
+	email				 VARCHAR(512) NOT NULL,
+	participation_id_participation BIGINT NOT NULL,
+	financial_account_account_id	 BIGINT NOT NULL,
+	PRIMARY KEY(student_id)
+);
+
+CREATE TABLE course (
+	id_course	 BIGSERIAL,
+	name		 VARCHAR(512) NOT NULL,
+	credits	 BIGINT NOT NULL,
+	descricao	 TEXT NOT NULL,
+	edicao	 TIMESTAMP NOT NULL,
+	capacity	 BIGINT,
+	id_coordenator BIGINT NOT NULL,
+	period	 INTEGER NOT NULL,
+	PRIMARY KEY(id_course)
+);
+
+CREATE TABLE participation (
+	id_participation	 BIGSERIAL,
+	registration_date DATE NOT NULL,
+	PRIMARY KEY(id_participation)
+);
+
+CREATE TABLE financial_account (
+	account_id BIGSERIAL,
+	balance	 FLOAT(8) NOT NULL,
+	PRIMARY KEY(account_id)
+);
+
+CREATE TABLE transferencia (
+	transaction_id		 BIGSERIAL,
+	ammount			 FLOAT(8) NOT NULL,
+	transaction_type		 VARCHAR(512) NOT NULL,
+	transaction_date		 DATE NOT NULL,
+	description			 TEXT,
+	financial_account_account_id BIGINT NOT NULL,
+	PRIMARY KEY(transaction_id)
+);
+
+CREATE TABLE employee (
+	user_id	 BIGSERIAL,
+	username	 VARCHAR(512) NOT NULL,
+	email		 VARCHAR(512) NOT NULL,
+	password	 VARCHAR(512) NOT NULL,
+	first_name	 VARCHAR(512) NOT NULL,
+	last_name	 VARCHAR(512) NOT NULL,
+	phone		 VARCHAR(512) NOT NULL,
+	data_nascimento DATE NOT NULL,
+	PRIMARY KEY(user_id)
+);
+
+CREATE TABLE instructor (
+	role		 VARCHAR(512),
+	course_id_course BIGINT NOT NULL,
+	employee_user_id BIGINT,
+	PRIMARY KEY(employee_user_id)
+);
+
+CREATE TABLE staff (
+	employee_user_id BIGINT,
+	PRIMARY KEY(employee_user_id)
+);
+
+CREATE TABLE degree_program (
+	degree_id		 BIGSERIAL,
+	name		 VARCHAR(512) NOT NULL,
+	description	 TEXT NOT NULL,
+	average_grade	 FLOAT(8),
+	students_student_id BIGINT NOT NULL,
+	PRIMARY KEY(degree_id)
+);
+
+CREATE TABLE class (
+	class_id			 BIGSERIAL,
+	type				 VARCHAR(512) NOT NULL,
+	schedule			 VARCHAR(512) NOT NULL,
+	participation_id_participation BIGINT NOT NULL,
+	course_id_course		 BIGINT NOT NULL,
+	PRIMARY KEY(class_id)
+);
+
+CREATE TABLE classroom (
+	classroom_id	 BIGSERIAL,
+	building	 VARCHAR(512) NOT NULL,
+	room_number	 BIGINT,
+	capacity	 BIGINT,
+	class_class_id BIGINT NOT NULL,
+	PRIMARY KEY(classroom_id)
+);
+
+CREATE TABLE evaluation (
+	evaluation_id	 BIGSERIAL,
+	grade		 BIGINT,
+	approved		 BOOL NOT NULL,
+	course_id_course	 BIGINT NOT NULL,
+	students_student_id BIGINT NOT NULL,
+	PRIMARY KEY(evaluation_id)
+);
+
+CREATE TABLE extracurricular_activity (
+	activity_id BIGSERIAL,
+	name	 VARCHAR(512) NOT NULL,
+	fee	 FLOAT(8),
+	PRIMARY KEY(activity_id)
+);
+
+CREATE TABLE students_course (
+	students_student_id BIGINT,
+	course_id_course	 BIGINT,
+	PRIMARY KEY(students_student_id,course_id_course)
+);
+
+CREATE TABLE course_course (
+	course_id_course	 BIGINT,
+	course_id_course1 BIGINT NOT NULL,
+	PRIMARY KEY(course_id_course)
+);
+
+CREATE TABLE students_extracurricular_activity (
+	students_student_id			 BIGINT,
+	extracurricular_activity_activity_id BIGINT,
+	PRIMARY KEY(students_student_id,extracurricular_activity_activity_id)
+);
+
+CREATE TABLE course_degree_program (
+	course_id_course	 BIGINT,
+	degree_program_degree_id BIGINT,
+	PRIMARY KEY(course_id_course,degree_program_degree_id)
+);
+
+ALTER TABLE students ADD UNIQUE (phone, email);
+ALTER TABLE students ADD CONSTRAINT students_fk1 FOREIGN KEY (participation_id_participation) REFERENCES participation(id_participation);
+ALTER TABLE students ADD CONSTRAINT students_fk2 FOREIGN KEY (financial_account_account_id) REFERENCES financial_account(account_id);
+ALTER TABLE course ADD UNIQUE (name);
+ALTER TABLE transferencia ADD CONSTRAINT transferencia_fk1 FOREIGN KEY (financial_account_account_id) REFERENCES financial_account(account_id);
+ALTER TABLE employee ADD UNIQUE (username, email, password, phone);
+ALTER TABLE instructor ADD CONSTRAINT instructor_fk1 FOREIGN KEY (course_id_course) REFERENCES course(id_course);
+ALTER TABLE instructor ADD CONSTRAINT instructor_fk2 FOREIGN KEY (employee_user_id) REFERENCES employee(user_id);
+ALTER TABLE staff ADD CONSTRAINT staff_fk1 FOREIGN KEY (employee_user_id) REFERENCES employee(user_id);
+ALTER TABLE degree_program ADD CONSTRAINT degree_program_fk1 FOREIGN KEY (students_student_id) REFERENCES students(student_id);
+ALTER TABLE class ADD CONSTRAINT class_fk1 FOREIGN KEY (participation_id_participation) REFERENCES participation(id_participation);
+ALTER TABLE class ADD CONSTRAINT class_fk2 FOREIGN KEY (course_id_course) REFERENCES course(id_course);
+ALTER TABLE classroom ADD UNIQUE (room_number);
+ALTER TABLE classroom ADD CONSTRAINT classroom_fk1 FOREIGN KEY (class_class_id) REFERENCES class(class_id);
+ALTER TABLE evaluation ADD CONSTRAINT evaluation_fk1 FOREIGN KEY (course_id_course) REFERENCES course(id_course);
+ALTER TABLE evaluation ADD CONSTRAINT evaluation_fk2 FOREIGN KEY (students_student_id) REFERENCES students(student_id);
+ALTER TABLE students_course ADD CONSTRAINT students_course_fk1 FOREIGN KEY (students_student_id) REFERENCES students(student_id);
+ALTER TABLE students_course ADD CONSTRAINT students_course_fk2 FOREIGN KEY (course_id_course) REFERENCES course(id_course);
+ALTER TABLE course_course ADD CONSTRAINT course_course_fk1 FOREIGN KEY (course_id_course) REFERENCES course(id_course);
+ALTER TABLE course_course ADD CONSTRAINT course_course_fk2 FOREIGN KEY (course_id_course1) REFERENCES course(id_course);
+ALTER TABLE students_extracurricular_activity ADD CONSTRAINT students_extracurricular_activity_fk1 FOREIGN KEY (students_student_id) REFERENCES students(student_id);
+ALTER TABLE students_extracurricular_activity ADD CONSTRAINT students_extracurricular_activity_fk2 FOREIGN KEY (extracurricular_activity_activity_id) REFERENCES extracurricular_activity(activity_id);
+ALTER TABLE course_degree_program ADD CONSTRAINT course_degree_program_fk1 FOREIGN KEY (course_id_course) REFERENCES course(id_course);
+ALTER TABLE course_degree_program ADD CONSTRAINT course_degree_program_fk2 FOREIGN KEY (degree_program_degree_id) REFERENCES degree_program(degree_id);
+
