@@ -1,37 +1,37 @@
 CREATE TABLE students (
-	student_id			 BIGSERIAL,
-	endereco			 TEXT NOT NULL,
-	first_name			 VARCHAR(512) NOT NULL,
-	last_name			 VARCHAR(512) NOT NULL,
-	phone				 VARCHAR(512) NOT NULL,
-	data_nascimento		 DATE NOT NULL,
-	email				 VARCHAR(512) NOT NULL,
-	participation_id_participation BIGINT NOT NULL,
-	financial_account_account_id	 BIGINT NOT NULL,
+	student_id	 BIGSERIAL,
+	endereco	 TEXT NOT NULL,
+	first_name	 VARCHAR(512) NOT NULL,
+	last_name	 VARCHAR(512) NOT NULL,
+	phone		 VARCHAR(512) NOT NULL,
+	data_nascimento DATE NOT NULL,
+	email		 VARCHAR(512) NOT NULL,
 	PRIMARY KEY(student_id)
 );
 
 CREATE TABLE course (
-	id_course	 BIGSERIAL,
-	name		 VARCHAR(512) NOT NULL,
+	id_course BIGSERIAL,
+	name	 VARCHAR(512) NOT NULL,
 	credits	 BIGINT NOT NULL,
-	descricao	 TEXT NOT NULL,
+	descricao TEXT NOT NULL,
 	edicao	 TIMESTAMP NOT NULL,
 	capacity	 BIGINT,
-	id_coordenator BIGINT NOT NULL,
 	period	 INTEGER NOT NULL,
 	PRIMARY KEY(id_course)
 );
 
 CREATE TABLE participation (
 	id_participation	 BIGSERIAL,
-	registration_date DATE NOT NULL,
+	registration_date	 DATE NOT NULL,
+	students_student_id BIGINT NOT NULL,
+	class_class_id	 BIGINT NOT NULL,
 	PRIMARY KEY(id_participation)
 );
 
 CREATE TABLE financial_account (
-	account_id BIGSERIAL,
-	balance	 FLOAT(8) NOT NULL,
+	account_id		 BIGSERIAL,
+	balance		 FLOAT(8) NOT NULL,
+	students_student_id BIGINT NOT NULL,
 	PRIMARY KEY(account_id)
 );
 
@@ -46,7 +46,7 @@ CREATE TABLE transferencia (
 );
 
 CREATE TABLE employee (
-	user_id	 BIGSERIAL,
+	employee_id	 BIGSERIAL,
 	username	 VARCHAR(512) NOT NULL,
 	email		 VARCHAR(512) NOT NULL,
 	password	 VARCHAR(512) NOT NULL,
@@ -54,19 +54,20 @@ CREATE TABLE employee (
 	last_name	 VARCHAR(512) NOT NULL,
 	phone		 VARCHAR(512) NOT NULL,
 	data_nascimento DATE NOT NULL,
-	PRIMARY KEY(user_id)
+	PRIMARY KEY(employee_id)
 );
 
 CREATE TABLE instructor (
 	role		 VARCHAR(512),
-	course_id_course BIGINT NOT NULL,
-	employee_user_id BIGINT,
-	PRIMARY KEY(employee_user_id)
+	type		 VARCHAR(512) NOT NULL,
+	course_id_course	 BIGINT NOT NULL,
+	employee_employee_id BIGINT,
+	PRIMARY KEY(employee_employee_id)
 );
 
 CREATE TABLE staff (
-	employee_user_id BIGINT,
-	PRIMARY KEY(employee_user_id)
+	employee_employee_id BIGINT,
+	PRIMARY KEY(employee_employee_id)
 );
 
 CREATE TABLE degree_program (
@@ -79,11 +80,10 @@ CREATE TABLE degree_program (
 );
 
 CREATE TABLE class (
-	class_id			 BIGSERIAL,
-	type				 VARCHAR(512) NOT NULL,
-	schedule			 VARCHAR(512) NOT NULL,
-	participation_id_participation BIGINT NOT NULL,
-	course_id_course		 BIGINT NOT NULL,
+	class_id	 BIGSERIAL,
+	type		 VARCHAR(512) NOT NULL,
+	schedule	 VARCHAR(512) NOT NULL,
+	course_id_course BIGINT NOT NULL,
 	PRIMARY KEY(class_id)
 );
 
@@ -137,17 +137,18 @@ CREATE TABLE course_degree_program (
 );
 
 ALTER TABLE students ADD UNIQUE (phone, email);
-ALTER TABLE students ADD CONSTRAINT students_fk1 FOREIGN KEY (participation_id_participation) REFERENCES participation(id_participation);
-ALTER TABLE students ADD CONSTRAINT students_fk2 FOREIGN KEY (financial_account_account_id) REFERENCES financial_account(account_id);
 ALTER TABLE course ADD UNIQUE (name);
+ALTER TABLE participation ADD UNIQUE (class_class_id);
+ALTER TABLE participation ADD CONSTRAINT participation_fk1 FOREIGN KEY (students_student_id) REFERENCES students(student_id);
+ALTER TABLE participation ADD CONSTRAINT participation_fk2 FOREIGN KEY (class_class_id) REFERENCES class(class_id);
+ALTER TABLE financial_account ADD CONSTRAINT financial_account_fk1 FOREIGN KEY (students_student_id) REFERENCES students(student_id);
 ALTER TABLE transferencia ADD CONSTRAINT transferencia_fk1 FOREIGN KEY (financial_account_account_id) REFERENCES financial_account(account_id);
 ALTER TABLE employee ADD UNIQUE (username, email, password, phone);
 ALTER TABLE instructor ADD CONSTRAINT instructor_fk1 FOREIGN KEY (course_id_course) REFERENCES course(id_course);
-ALTER TABLE instructor ADD CONSTRAINT instructor_fk2 FOREIGN KEY (employee_user_id) REFERENCES employee(user_id);
-ALTER TABLE staff ADD CONSTRAINT staff_fk1 FOREIGN KEY (employee_user_id) REFERENCES employee(user_id);
+ALTER TABLE instructor ADD CONSTRAINT instructor_fk2 FOREIGN KEY (employee_employee_id) REFERENCES employee(employee_id);
+ALTER TABLE staff ADD CONSTRAINT staff_fk1 FOREIGN KEY (employee_employee_id) REFERENCES employee(employee_id);
 ALTER TABLE degree_program ADD CONSTRAINT degree_program_fk1 FOREIGN KEY (students_student_id) REFERENCES students(student_id);
-ALTER TABLE class ADD CONSTRAINT class_fk1 FOREIGN KEY (participation_id_participation) REFERENCES participation(id_participation);
-ALTER TABLE class ADD CONSTRAINT class_fk2 FOREIGN KEY (course_id_course) REFERENCES course(id_course);
+ALTER TABLE class ADD CONSTRAINT class_fk1 FOREIGN KEY (course_id_course) REFERENCES course(id_course);
 ALTER TABLE classroom ADD UNIQUE (room_number);
 ALTER TABLE classroom ADD CONSTRAINT classroom_fk1 FOREIGN KEY (class_class_id) REFERENCES class(class_id);
 ALTER TABLE evaluation ADD CONSTRAINT evaluation_fk1 FOREIGN KEY (course_id_course) REFERENCES course(id_course);
